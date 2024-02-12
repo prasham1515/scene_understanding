@@ -1,3 +1,4 @@
+import colabcam
 
 
 import matplotlib.pyplot as plt
@@ -40,12 +41,15 @@ ckpt = torch.load('../../weights/ExpNYUD_joint.ckpt')
 model.load_state_dict(ckpt['state_dict'])
 
 mask_img = np.zeros((480,640))
-cap = cv2.VideoCapture(-1)
+colabcam.video_stream()
+label_html = 'Stream'
+img_mask=''
 # print(torch.cuda.available())
 xx = 0 
 while(True):
     # Capture frame-by-frame
-    ret, frame = cap.read()
+    js_reply = colabcam.video_frame(label_html,img_mask)
+    if not js_reply:break
     xx+=1
     # Figure 2-top row
     # img_path = '../../examples/ExpNYUD_joint/000464.png'
@@ -55,8 +59,9 @@ while(True):
     right_turn=0
     left_turn = 0
     no_move = 1
+	
     # img = np.array(Image.open(img_path))
-    img = np.array(img_path)
+    img = colabcam.js_to_image(js_reply["img"])
     gt_segm = np.array(Image.open('../../examples/ExpNYUD_joint/segm_gt_000464.png'))
     gt_depth = np.array(Image.open('../../examples/ExpNYUD_joint/depth_gt_000464.png'))
     mask_img = np.zeros((480,640))
@@ -140,12 +145,9 @@ while(True):
         # cv2.imwrite("fuse/"+str(xx)+".png",mask_img)
         # print(mask_img)
         # print(np.shape(depth))
-        cv2.imshow('segmentation',img_mask_color)
+	img_mask = colabcam.cvImg2bbox(img_mask_color)
     # cv2.imshow('input',frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-cap.release()
-cv2.destroyAllWindows()  
+    
 # plt.figure(figsize=(18, 12))
 # plt.subplot(151)
 # plt.imshow(img)
