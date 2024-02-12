@@ -7,6 +7,7 @@ import numpy as np
 
 import sys
 sys.path.append('../')
+sys.path.append('/content/scene_understanding/vision_based_robot_navigation-master/src')
 from models import net
 
 import cv2
